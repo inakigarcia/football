@@ -1,7 +1,7 @@
 name: Apply Sonar Fix
 
 on:
-  workflow_dispatch:
+  workflow_dispatch:  # Esto genera el botón en Actions
 
 jobs:
   sonar-fix:
@@ -11,12 +11,13 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Debug repo files
-        run: |
-          echo "PWD=$(pwd)"
-          ls -l
+      - name: Check Python version
+        run: python3 --version
 
-      - name: Apply sonar fix
+      - name: List repo files
+        run: ls -l
+
+      - name: Run sonar fix
         run: python3 scripts/sonar_fix.py
 
       - name: Create branch
