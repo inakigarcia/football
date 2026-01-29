@@ -1,0 +1,46 @@
+name: Sonar Fix Reusable
+
+on:
+  workflow_call:
+
+jobs:
+  sonar-fix:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo destino
+        uses: actions/checkout@v4
+
+      - name: Get repo name
+        run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
+
+      - name: Copy script
+        run: |
+          mkdir -p .github/scripts
+          cp -r ${{ github.action_path }}/../../scripts/sonar_fix.py .github/scripts/
+
+      - name: Apply sonar fix
+        run: python3 .github/scripts/sonar_fix.py
+
+      - name: Create branch
+        run: |
+          git checkout -b chore/sonar-libraries-fix
+
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add sonar-project.properties
+          git commit -m "chore: add sonar java libraries and test binaries" || echo "No changes"
+
+      - name: Push branch
+        run: git push origin chore/sonar-libraries-fix
+
+      - name: Create PR
+        uses: gh-actions/gh-pr-create@v5
+        with:
+          title: "Add sonar java libraries and test binaries"
+          body: "Automated update of sonar-project.properties"
+          branch: chore/sonar-libraries-fix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
