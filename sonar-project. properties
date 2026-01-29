@@ -1,0 +1,14 @@
+launcher.sonar.sources=src/main/java
+launcher.sonar.tests=src/it/java
+
+# Tests
+sonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml,target/site/jacoco-it/jacoco.xml
+sonar.coverage.exclusions=**/target/**,**/test/**,**/models/**,**/config/**,**/entities/**,**/aspects/**
+sonar.exclusions=**/target/**,**/test/**
+
+# Java
+sonar.java.coveragePlugin=jacoco
+sonar.java.binaries=**/*
+
+# Debug
+sonar.verbose=true
