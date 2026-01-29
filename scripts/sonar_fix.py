@@ -1,17 +1,21 @@
-import os
 from pathlib import Path
 
-repo_name = os.environ["REPO_NAME"]
-
+# Archivo fijo en la raíz del repo
 sonar_file = Path("sonar-project.properties").resolve()
 
 match_line = "sonar.java.binaries=**/*"
+
+repo_name = Path().resolve().name  # Nombre del repo (carpeta raíz)
 
 template = f"""
 sonar.java.libraries=/home/runner/work/{repo_name}/{repo_name}/.m2/**/*.jar
 sonar.java.test.binaries=target/test-classes
 sonar.java.test.libraries=/home/runner/work/{repo_name}/{repo_name}/.m2/**/*.jar
 """.strip("\n")
+
+if not sonar_file.exists():
+    print(f"ERROR: {sonar_file} no existe")
+    exit(1)
 
 with open(sonar_file, "r") as f:
     lines = f.readlines()
