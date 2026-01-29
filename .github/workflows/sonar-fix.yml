@@ -1,30 +1,26 @@
-name: Sonar Fix Reusable
+name: Apply Sonar Fix
 
 on:
-  workflow_call:
+  workflow_dispatch:  # Esto hace que aparezca un botón en Actions
 
 jobs:
   sonar-fix:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo destino
+      - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Get repo name
-        run: echo "REPO_NAME=${GITHUB_REPOSITORY##*/}" >> $GITHUB_ENV
-
-      - name: Copy script
+      - name: Debug files
         run: |
-          mkdir -p .github/scripts
-          cp -r ${{ github.action_path }}/../../scripts/sonar_fix.py .github/scripts/
+          echo "PWD=$(pwd)"
+          ls -l
 
       - name: Apply sonar fix
-        run: python3 .github/scripts/sonar_fix.py
+        run: python3 scripts/sonar_fix.py
 
       - name: Create branch
-        run: |
-          git checkout -b chore/sonar-libraries-fix
+        run: git checkout -b chore/sonar-libraries-fix
 
       - name: Commit changes
         run: |
@@ -37,10 +33,11 @@ jobs:
         run: git push origin chore/sonar-libraries-fix
 
       - name: Create PR
-        uses: gh-actions/gh-pr-create@v5
+        uses: peter-evans/create-pull-request@v5
         with:
           title: "Add sonar java libraries and test binaries"
           body: "Automated update of sonar-project.properties"
-          branch: chore/sonar-libraries-fix
+          head: chore/sonar-libraries-fix
+          base: master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
