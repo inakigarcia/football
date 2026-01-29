@@ -1,0 +1,15 @@
+name: Test Sonar Fix (local)
+
+on:
+  workflow_dispatch:
+    inputs:
+      sonar_file_path:
+        description: "Ruta al sonar-project.properties"
+        required: true
+        default: "sonar-project.properties"
+
+jobs:
+  call-sonar-fix:
+    uses: ./.github/workflows/sonar-fix.yml
+    with:
+      sonar_file_path: ${{ inputs.sonar_file_path }}
