@@ -3,9 +3,12 @@ from pathlib import Path
 # Archivo fijo en la raíz del repo
 sonar_file = Path("sonar-project.properties").resolve()
 
+print(f"DEBUG: looking for sonar file at: {sonar_file}")
+print(f"DEBUG: file exists? {sonar_file.exists()}")
+
 match_line = "sonar.java.binaries=**/*"
 
-repo_name = Path().resolve().name  # Nombre del repo (carpeta raíz)
+repo_name = Path().resolve().name
 
 template = f"""
 sonar.java.libraries=/home/runner/work/{repo_name}/{repo_name}/.m2/**/*.jar
@@ -14,7 +17,7 @@ sonar.java.test.libraries=/home/runner/work/{repo_name}/{repo_name}/.m2/**/*.jar
 """.strip("\n")
 
 if not sonar_file.exists():
-    print(f"ERROR: {sonar_file} no existe")
+    print("ERROR: sonar-project.properties no encontrado")
     exit(1)
 
 with open(sonar_file, "r") as f:
