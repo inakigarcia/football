@@ -1,7 +1,7 @@
 name: Apply Sonar Fix
 
 on:
-  workflow_dispatch:  # Esto hace que aparezca un botón en Actions
+  workflow_dispatch:
 
 jobs:
   sonar-fix:
@@ -11,7 +11,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Debug files
+      - name: Debug repo files
         run: |
           echo "PWD=$(pwd)"
           ls -l
