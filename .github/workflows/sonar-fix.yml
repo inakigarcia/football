@@ -1,7 +1,7 @@
 name: Apply Sonar Fix
 
 on:
-  workflow_dispatch:  # Esto genera el botón en Actions
+  workflow_dispatch:
 
 jobs:
   sonar-fix:
@@ -11,34 +11,20 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Check Python version
-        run: python3 --version
+      - name: Check files
+        run: |
+          pwd
+          ls -l
 
-      - name: List repo files
-        run: ls -l
-
-      - name: Run sonar fix
+      - name: Run sonar fix script
         run: python3 scripts/sonar_fix.py
 
-      - name: Create branch
-        run: git checkout -b chore/sonar-libraries-fix
-
-      - name: Commit changes
-        run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git add sonar-project.properties
-          git commit -m "chore: add sonar java libraries and test binaries" || echo "No changes"
-
-      - name: Push branch
-        run: git push origin chore/sonar-libraries-fix
-
-      - name: Create PR
+      - name: Create Pull Request if changes
         uses: peter-evans/create-pull-request@v5
         with:
+          commit-message: "chore: add sonar java libraries and test binaries"
           title: "Add sonar java libraries and test binaries"
           body: "Automated update of sonar-project.properties"
-          head: chore/sonar-libraries-fix
-          base: master
+          branch: chore/sonar-libraries-fix
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
