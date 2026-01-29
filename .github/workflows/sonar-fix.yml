@@ -11,12 +11,12 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Check files
+      - name: Debug repo
         run: |
           pwd
-          ls -l
+          ls -la
 
-      - name: Run sonar fix script
+      - name: Run sonar fix
         run: python3 scripts/sonar_fix.py
 
       - name: Create Pull Request if changes
