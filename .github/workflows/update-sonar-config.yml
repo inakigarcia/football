@@ -19,28 +19,37 @@ jobs:
 
       - name: Modify sonar-project.properties
         run: |
-          # 1. Definir variables
           FILE="sonar-project.properties"
-          MATCH="sonar.java.binaries=\*\*/\*"
           
-          # El nombre del repo se obtiene del contexto de GitHub
-          # Ejemplo: my-org/my-spring-repo -> my-spring-repo
-          PROJECT_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
-          
-          # 2. Definir el template (escapando saltos de línea para sed si es necesario)
-          # Usamos /home/runner/work/ como en tu test
-          TEMPLATE="sonar.java.libraries=/home/runner/work/$PROJECT_NAME/$PROJECT_NAME/.m2/**/*.jar\nsonar.java.test.binaries=target/test-classes\nsonar.java.test.libraries=/home/runner/work/$PROJECT_NAME/$PROJECT_NAME/.m2/**/*.jar"
-
-          # 3. Inserción usando sed
-          # Busca la línea MATCH y añade el TEMPLATE justo debajo
-          if grep -q "sonar.java.binaries=\*\*/\*" "$FILE"; then
-            sed -i "/$MATCH/a $TEMPLATE" "$FILE"
-            echo "Archivo modificado correctamente."
-          else
-            echo "No se encontró el patrón en $FILE"
+          if [ ! -f "$FILE" ]; then
+            echo "Error: El archivo $FILE no existe."
             exit 1
           fi
 
+          # 1. Definir el nombre del proyecto
+          PROJECT_NAME=$(echo "${{ github.repository }}" | cut -d'/' -f2)
+          
+          # 2. Definir el patrón de búsqueda EXACTO
+          # Usamos comillas simples para que Bash no toque los asteriscos
+          LOOK_FOR='sonar.java.binaries=\*\*/\*'
+          
+          # 3. Definir el bloque a insertar (usando saltos de línea literales)
+          # El bloque debe empezar con un salto de línea para que no se pegue a la línea anterior
+          TEMPLATE="sonar.java.libraries=/home/runner/work/$PROJECT_NAME/$PROJECT_NAME/.m2/**/*.jar\nsonar.java.test.binaries=target/test-classes\nsonar.java.test.libraries=/home/runner/work/$PROJECT_NAME/$PROJECT_NAME/.m2/**/*.jar"
+
+          echo "Buscando patrón en $FILE..."
+
+          # 4. Inserción con sed usando '|' como delimitador para evitar conflictos con '/'
+          # La sintaxis 's|patrón|&\ncontenido|' busca el patrón y lo sustituye por 
+          # sí mismo (&), un salto de línea (\n) y el contenido nuevo.
+          if grep -q "sonar.java.binaries=\*\*/\*" "$FILE"; then
+            sed -i "s|$LOOK_FOR|&\n$TEMPLATE|" "$FILE"
+            echo "Modificación completada con éxito."
+            cat "$FILE" # Esto es para que veas el resultado en los logs
+          else
+            echo "Error: No se encontró 'sonar.java.binaries=**/*' en el archivo."
+            exit 1
+          fi
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v5
         with:
